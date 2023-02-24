@@ -48,7 +48,7 @@ secret_layers_list.sort(reverse = True)
 
 secret_model = Neural_Net(layers = secret_layers, layers_list = secret_layers_list)
 secret_model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = 1e-3),
-              loss = tf.losses.CategoricalCrossentropy(from_logits = True),
+              loss = tf.losses.CategoricalCrossentropy(),
               metrics = ['accuracy'])
 
 history = secret_model.fit(
@@ -73,10 +73,10 @@ Test Accuracy : {secret_test_acc:.4f}')
 # Create a very simple model
 model = Neural_Net(layers = 3, layers_list = [128,64,32])
 model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = 1e-3),
-              loss = tf.losses.CategoricalCrossentropy(from_logits = True),
+              loss = tf.losses.CategoricalCrossentropy(),
               metrics = ['accuracy'])
 
-# Using the created datasets              #TODO: probably only need one of these
+# Using the created datasets
 history = model.fit(
     train_dataset.repeat(),
     epochs=10,
@@ -84,6 +84,9 @@ history = model.fit(
     validation_data = val_dataset.repeat(),
     validation_steps = 2 
 )
+
+model_preds = model(x_train)
+secret_preds = secret_model(x_train)
 
 train_loss, train_acc = model.evaluate(train_dataset)
 test_loss, test_acc = model.evaluate(val_dataset)
@@ -98,7 +101,8 @@ def call_model(model, example):
 
 train_disagree_dict = {}
 for i in range(60000):
-    if call_model(model, x_train[i]) != call_model(secret_model, x_train[i]):
+    if not (model_preds.numpy()[i] == secret_preds.numpy()[i]).all():
+        print(str(i))
         dict_key = str(i)
         train_disagree_dict[dict_key] = x_train[i]
         # print(f'The {i}th entry is predicted differently')
@@ -106,17 +110,13 @@ for i in range(60000):
 # TODO: Add prediction of each model (to show what models predict as)
 # What does this dataset look like? 
 # Plot the first 100 entries:
-fig, ax = plt.subplots(5,5) # Build 5 x 5 grid
+fig, ax = plt.subplots(5, 5) # Build 5 x 5 grid
 fig.suptitle('MNIST Dataset: Ambiguous entries', fontsize = '12')
 for i, ax in enumerate(ax.flatten()):
     dict_entry = list(train_disagree_dict.keys())[i]
     ax.imshow(train_disagree_dict[dict_entry], cmap ='gray_r')
     ax.axis('off')
 fig.show()
-
-# Code for predicting each model on an example [for use in above TODO]
-call_model(model, x_train[0])
-call_model(secret_model, x_train[0])
 
 #################################
 ######### Gradient Tape #########

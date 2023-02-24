@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from easydict import EasyDict
 from tensorflow.keras import Model
@@ -84,6 +85,8 @@ class Neural_Net(Model):
             x = self.layers_dict[key](x)
         return(x)
     
-def call_model(model, example):
+def call_model(model, example, verbose = False):
     one_hot = model(example.reshape(1,28,28))
-    print(np.argmax(one_hot))
+    if verbose == True:
+        print(np.argmax(one_hot))
+    return(np.argmax(one_hot))
