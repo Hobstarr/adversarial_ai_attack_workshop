@@ -1,10 +1,15 @@
+# TODO: edit load_data data_dir in utils.py
+# TODO: Randomise dataset - simple solution: new create_dataset
+# TODO: Add prediction of each model (to show what models predict as)
+
+
 import random                         #
 import matplotlib.pyplot as plt       # useful python tools
 import numpy as np                    #
 
 import tensorflow as tf                     # Tensorflow is gogles model building
 import tensorflow_datasets as tfds          # library, supports distributed computing
-from tensorflow.keras import Model
+from tensorflow.keras import Model, Sequential
 from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, Reshape
 
 # cleverhans is a model attacking and defending tool, full info on github
@@ -13,7 +18,8 @@ from cleverhans.tf2.attacks.fast_gradient_method import fast_gradient_method
 
 from absl import app, flags                 # specific tools and custom utils 
 from easydict import EasyDict               # from utils.py file
-from utils import ld_mnist, ld_mnist_onehot, create_dataset, Neural_Net, call_model
+from utils import ld_mnist, ld_mnist_onehot, create_dataset, \
+                    Neural_Net, call_model, preprocess_single_for_pert
 
 FLAGS = flags.FLAGS # setting up command line parameters for simulating command line.
 
@@ -22,14 +28,14 @@ FLAGS = flags.FLAGS # setting up command line parameters for simulating command 
 #############################################
 
 # Try using mnist from keras
-(x_train, y_train), (x_val, y_val) = tf.keras.datasets.mnist.load_data()
+(x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
 train_dataset = create_dataset(x_train, y_train)
 val_dataset = create_dataset(x_val, y_val)
 
 # What does this dataset look like? 
 # Plot the first 100 entries:
-fig, ax = plt.subplots(10,10) # Build 10 x 10 grid
-fig.suptitle('MNIST Dataset: First 100 Entries', fontsize = '12')
+fig, ax = plt.subplots(5, 5) # Build 4 x 4 grid
+fig.suptitle(f'MNIST Dataset: First {len(ax.flatten())} Entries', fontsize = '12')
 for i, ax in enumerate(ax.flatten()): 
     ax.imshow(x_train[i], cmap ='gray_r')
     ax.axis('off')
@@ -94,13 +100,8 @@ print(f'Secret Model Performance \n\
 Train Accuracy: {train_acc:.4f} \n\
 Test Accuracy : {test_acc:.4f}')
 
-# TODO: Move to utils
-def call_model(model, example):
-    one_hot = model(example.reshape(1,28,28))
-    return np.argmax(one_hot)
-
 train_disagree_dict = {}
-for i in range(60000):
+for i in range(1000):
     if not (model_preds.numpy()[i] == secret_preds.numpy()[i]).all():
         print(str(i))
         dict_key = str(i)
@@ -132,48 +133,32 @@ dy_dx = tape.gradient(y, x)
 dz_dx = tape.gradient(z, x)
 print(f'{dy_dx}, {dz_dx}')
 
-# Build an FGSM attack
-input_label = y_train[0]
-input_label = tf.cast(input_label, tf.int32)
-input_label = tf.one_hot(input_label, 10)
-input_label = tf.reshape(input_label, (1,10))
-
-input_image = x_train[0]
-input_image = input_image.reshape(1,28,28)
-input_image = tf.cast(input_image, tf.float32)
-input_image = tf.convert_to_tensor(input_image)
-
-softmax = tf.keras.layers.Softmax()
-softmax(model(input_image))
-
-loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits = True)
-tf.one_hot
+loss_object = tf.keras.losses.CategoricalCrossentropy()
 def create_adversarial_pattern(input_image, input_label):
-    input_label = input_label.reshape(-1)
-    input_label = tf.cast(input_label, tf.int32)
-    one_hot_label = tf.one_hot(input_label, 10)
-
-    with tf.GradientTape() as tape:
+    with tf.GradientTape(persistent = True) as tape:
         tape.watch(input_image)
         prediction = model(input_image)
+        print(prediction)
         loss = loss_object(input_label, prediction)
 
-    gradient = tape.gradient(gradient)
-    return(gradient)
+    gradient = tape.gradient(loss, input_image)
+    signed_grad = tf.sign(gradient)
+    return(signed_grad)
 
-create_adversarial_pattern(x_train[0], y_train[0])
+# Build an FGSM attack
+input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
+perturbations = create_adversarial_pattern(input_image, input_label)
+plt.imshow(perturbations[0] * 0.5 + 0.5)
+plt.show()
 
+# Since this attack is 'targetted' we are trying to 
+# increase the loss with respect to 
+adv_x = input_image + (0.2 * perturbations)
+plt.imshow(adv_x[0])
+plt.show()
 
-input_label = y_train[0].reshape(-1)
-input_label = tf.cast(input_label, tf.int32)
-one_hot_label = tf.one_hot(input_label, 10)
-
-
-input_image = x_train[0]
-input_image = input_image.reshape(1,28,28)
-input_image = tf.cast(input_image, tf.float32)
-input_image = tf.convert_to_tensor(input_image)
 model(input_image)
+model(adv_x)
 
 
 
