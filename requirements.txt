@@ -1,0 +1,6 @@
+tensorflow
+tensorflow-datasets
+cleverhans
+
+absl-py # may install with tf
+easydict # may install with tf
