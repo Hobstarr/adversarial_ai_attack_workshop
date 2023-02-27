@@ -160,7 +160,11 @@ def create_adversarial_pattern(input_image, input_label):
 
 #################################
 #########  FGSM Attack  #########
+# Pick a target, our aim is to misclassify this image
 input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
+plt.imshow(input_image[0]) # the subscript gives us the values from a tensor
+plt.xlabel(f'Our model predicts this image: {np.argmax(model(input_image))}')
+plt.show()
 
 # Build perturbation mask and show it
 perturbations = create_adversarial_pattern(input_image, input_label)
