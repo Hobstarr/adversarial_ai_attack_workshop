@@ -18,7 +18,7 @@ from cleverhans.tf2.attacks.fast_gradient_method import fast_gradient_method
 from absl import app, flags                 # specific tools and custom utils 
 from easydict import EasyDict               # from utils.py file
 from utils import ld_mnist, ld_mnist_onehot, create_dataset, \
-                    Neural_Net, call_model, preprocess_single_for_pert
+                    Neural_Net, call_model, preprocess_single_for_pert, plot_adv
 
 FLAGS = flags.FLAGS # setting up command line parameters for simulating command line.
 
@@ -158,42 +158,31 @@ def create_adversarial_pattern(input_image, input_label):
     signed_grad = tf.sign(gradient)
     return(signed_grad)
 
-# Build an FGSM attack
+#################################
+#########  FGSM Attack  #########
 input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
+
+# Build perturbation mask and show it
 perturbations = create_adversarial_pattern(input_image, input_label)
 plt.imshow(perturbations[0] * 0.5 + 0.5)
 plt.show()
 
+# Show image
+# Since this attack is 'not-targetted' we are trying to 
+# increase the loss with respect to ther input image
 eps = 0.05
 adv_x = input_image + (eps * perturbations)
 
-# Since this attack is 'not-targetted' we are trying to 
-# increase the loss with respect to ther input image
-def plot_adv(input_image, eps):
-    adv_x = input_image + (eps * perturbations)
 
-    fig, ax = plt.subplots(1, 3, figsize = (8,3))
-    fig.suptitle(f'My First Adversarial Sample', fontsize = '12')
 
-    ax[0].imshow(input_image[0])
-    ax[0].set_xlabel(f'Surrogate Model: {np.argmax(model(input_image))} \n\
-    Target Model: {np.argmax(secret_model(input_image))}')
+input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
+perturbations = create_adversarial_pattern(input_image, input_label)
+plot_adv(input_image, eps, perturbations, model, secret_model)
 
-    ax[1].imshow(perturbations[0] * 0.5 + 0.5)
-    ax[1].set_xlabel(f'eps = {eps}')
 
-    ax[2].imshow(adv_x[0])
-    ax[2].set_xlabel(f'Surrogate Model: {np.argmax(model(adv_x))} \n\
-    Target Model: {np.argmax(secret_model(adv_x))}')
-
-    for ax in ax.flatten():
-        ax.set_xticks([]) 
-        ax.set_yticks([])
-        #ax.axis('off')
-    fig.show()
 
 for i in range(5):
-    axes[i] = plot_adv(input_image, i/50)
+    plot_adv(input_image, i/50)
 
 model_prob_dict = {}
 for i in range(10):

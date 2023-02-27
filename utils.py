@@ -92,21 +92,35 @@ def call_model(model, example, verbose = False):
     return(np.argmax(one_hot))
 
 def preprocess_single_for_pert(input_image, input_label):
-    print(input_label)
     input_label = tf.cast(input_label, tf.int32)
-    print(input_label)
     input_label = tf.one_hot(input_label, 10)
-    print(input_label)
     input_label = tf.reshape(input_label, (1,10))
-    print(input_label)
 
-    print(input_image)
     input_image = input_image / 255.0
-    print(input_image)
     input_image = input_image.reshape(1,28,28)
-    print(input_image)
     input_image = tf.cast(input_image, tf.float32)
-    print(input_image)
     input_image = tf.convert_to_tensor(input_image)
-    print(input_image)
     return input_image, input_label
+
+def plot_adv(input_image, eps, perturbations, model, secret_model):
+    adv_x = input_image + (eps * perturbations)
+
+    fig, ax = plt.subplots(1, 3, figsize = (8,3))
+    fig.suptitle(f'My First Adversarial Sample', fontsize = '12')
+
+    ax[0].imshow(input_image[0])
+    ax[0].set_xlabel(f'Surrogate Model: {np.argmax(model(input_image))} \n\
+    Target Model: {np.argmax(secret_model(input_image))}')
+
+    ax[1].imshow(perturbations[0] * 0.5 + 0.5)
+    ax[1].set_xlabel(f'eps = {eps}')
+
+    ax[2].imshow(adv_x[0])
+    ax[2].set_xlabel(f'Surrogate Model: {np.argmax(model(adv_x))} \n\
+    Target Model: {np.argmax(secret_model(adv_x))}')
+
+    for ax in ax.flatten():
+        ax.set_xticks([]) 
+        ax.set_yticks([])
+        #ax.axis('off')
+    fig.show()
