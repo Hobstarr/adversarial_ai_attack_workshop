@@ -2,7 +2,6 @@
 # TODO: Randomise dataset - simple solution: new create_dataset
 # TODO: Add prediction of each model (to show what models predict as)
 
-
 import random                         #
 import matplotlib.pyplot as plt       # useful python tools
 import numpy as np                    #
@@ -24,30 +23,37 @@ from utils import ld_mnist, ld_mnist_onehot, create_dataset, \
 FLAGS = flags.FLAGS # setting up command line parameters for simulating command line.
 
 #############################################
-######### MNIST Fingerprint Dataset #########
+######### Part 1: ML Model FUNdamentals #####
 #############################################
 
-# Try using mnist from keras
-(x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
+######### MNIST Fashion Dataset #############
+### Building a dataset to work from
+### If you'd rather use the fingerprint dataset
+### change fashion_mnist to mnist
+
+# use inbuilt mnist from keras
+(x_train, y_train), (x_val, y_val) = tf.keras.datasets.mnist.load_data()
 train_dataset = create_dataset(x_train, y_train)
 val_dataset = create_dataset(x_val, y_val)
 
 # What does this dataset look like? 
-# Plot the first 100 entries:
-fig, ax = plt.subplots(5, 5) # Build 4 x 4 grid
+# Plot the first x entries, change the values within subplots to edit:
+fig, ax = plt.subplots(5, 5) # Build 5 x 5 grid
 fig.suptitle(f'MNIST Dataset: First {len(ax.flatten())} Entries', fontsize = '12')
 for i, ax in enumerate(ax.flatten()): 
     ax.imshow(x_train[i], cmap ='gray_r')
     ax.axis('off')
 fig.show()
 
-#######################################
-######### Create Target Model #########
-#######################################
+# Write a class list so we can get a real understanding of prediction
+class_list = ['T-shirt', 'Trouser', 'Pullover', 'Dress', 'Coat',
+              'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
 
+######### Create Target Model #########
 # Create secret model using random subset of training data,
 # random number of layers [1-10], random nodes in layers [32-256]
 # TODO: Randomise dataset - simple solution: new create_dataset
+
 secret_layers = random.randint(1,10)
 secret_layers_list = [random.randint(32,256) for x in range(secret_layers)]
 secret_layers_list.sort(reverse = True)
@@ -71,13 +77,15 @@ print(f'Secret Model Performance \n\
 Train Accuracy: {secret_train_acc:.4f} \n\
 Test Accuracy : {secret_test_acc:.4f}')
       
-##########################################
 ######### Create Surrogate Model #########
-##########################################
+# To attack a model, we often have to create our own
+# model that accomplishes the same task. Due to some
+# intriguing properties of neural networks, and other
+# types of models it can be found that attacks are
+# 'transferable'.
 
-# Create surrogate model - same task (identifying fingerprints)
 # Create a very simple model
-model = Neural_Net(layers = 3, layers_list = [128,64,32])
+model = Neural_Net(layers = 2, layers_list = [64,32])
 model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = 1e-3),
               loss = tf.losses.CategoricalCrossentropy(),
               metrics = ['accuracy'])
@@ -91,17 +99,18 @@ history = model.fit(
     validation_steps = 2 
 )
 
-model_preds = model(x_train)
-secret_preds = secret_model(x_train)
-
 train_loss, train_acc = model.evaluate(train_dataset)
 test_loss, test_acc = model.evaluate(val_dataset)
 print(f'Secret Model Performance \n\
 Train Accuracy: {train_acc:.4f} \n\
 Test Accuracy : {test_acc:.4f}')
 
+# How do these models differ, what is ambiguous for our models?
+
+model_preds = model(x_train)
+secret_preds = secret_model(x_train)
 train_disagree_dict = {}
-for i in range(1000):
+for i in range(10000):
     if not (model_preds.numpy()[i] == secret_preds.numpy()[i]).all():
         print(str(i))
         dict_key = str(i)
@@ -118,6 +127,10 @@ for i, ax in enumerate(ax.flatten()):
     ax.imshow(train_disagree_dict[dict_entry], cmap ='gray_r')
     ax.axis('off')
 fig.show()
+
+#############################################
+######### Part 2: Crafting ML Model Attacks #
+#############################################
 
 #################################
 ######### Gradient Tape #########
@@ -151,14 +164,52 @@ perturbations = create_adversarial_pattern(input_image, input_label)
 plt.imshow(perturbations[0] * 0.5 + 0.5)
 plt.show()
 
-# Since this attack is 'targetted' we are trying to 
-# increase the loss with respect to 
-adv_x = input_image + (0.2 * perturbations)
-plt.imshow(adv_x[0])
-plt.show()
+eps = 0.05
+adv_x = input_image + (eps * perturbations)
 
-model(input_image)
-model(adv_x)
+# Since this attack is 'not-targetted' we are trying to 
+# increase the loss with respect to ther input image
+def plot_adv(input_image, eps):
+    adv_x = input_image + (eps * perturbations)
+
+    fig, ax = plt.subplots(1, 3, figsize = (8,3))
+    fig.suptitle(f'My First Adversarial Sample', fontsize = '12')
+
+    ax[0].imshow(input_image[0])
+    ax[0].set_xlabel(f'Surrogate Model: {np.argmax(model(input_image))} \n\
+    Target Model: {np.argmax(secret_model(input_image))}')
+
+    ax[1].imshow(perturbations[0] * 0.5 + 0.5)
+    ax[1].set_xlabel(f'eps = {eps}')
+
+    ax[2].imshow(adv_x[0])
+    ax[2].set_xlabel(f'Surrogate Model: {np.argmax(model(adv_x))} \n\
+    Target Model: {np.argmax(secret_model(adv_x))}')
+
+    for ax in ax.flatten():
+        ax.set_xticks([]) 
+        ax.set_yticks([])
+        #ax.axis('off')
+    fig.show()
+
+for i in range(5):
+    axes[i] = plot_adv(input_image, i/50)
+
+model_prob_dict = {}
+for i in range(10):
+    model_class_prob_list = []
+    for eps in range(0, 1000):
+        adv_x = input_image + (eps/1000 * perturbations)
+        model_class_prob_list.append(model(adv_x).numpy()[0][i])
+    model_prob_dict[str(i)] = model_class_prob_list
+
+fig = plt.figure(figsize = (8,8))
+for i in range(10):
+    dict_entry = str(i)
+    plt.plot(list(range(1000)), model_prob_dict[dict_entry])
+fig.show()
+        
+
 
 
 

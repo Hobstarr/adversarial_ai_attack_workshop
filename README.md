@@ -15,7 +15,7 @@ As long as the underlying relationship between X and y doesn't change, and the d
 There are many ways to affect the availability of a model, but we want to affect the integrity by reducing it's efficacy, or confidence in it's predictions.
 
 ### What is an adversarial example?
-An adversarial example is an example that has been editted, so that X + delta is classified in a different way than X, with some small delta. (There are other ways where this isn't exactly true, but this is generally true)
+An adversarial example is an example that has been editted, so that X + delta is classified in a different way than X, with some small delta. (There are other ways where this isn't exactly true, but this is generally true).
 
 How does gradient tape work?
 Simple functions - that we know

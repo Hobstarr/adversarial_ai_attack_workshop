@@ -92,11 +92,21 @@ def call_model(model, example, verbose = False):
     return(np.argmax(one_hot))
 
 def preprocess_single_for_pert(input_image, input_label):
+    print(input_label)
     input_label = tf.cast(input_label, tf.int32)
+    print(input_label)
     input_label = tf.one_hot(input_label, 10)
+    print(input_label)
     input_label = tf.reshape(input_label, (1,10))
+    print(input_label)
 
+    print(input_image)
     input_image = input_image / 255.0
+    print(input_image)
     input_image = input_image.reshape(1,28,28)
+    print(input_image)
     input_image = tf.cast(input_image, tf.float32)
+    print(input_image)
     input_image = tf.convert_to_tensor(input_image)
+    print(input_image)
+    return input_image, input_label
