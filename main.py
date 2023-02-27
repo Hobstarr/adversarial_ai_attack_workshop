@@ -244,6 +244,11 @@ plt.ylabel('probability')
 plt.xlabel('eps')
 fig.show()
 
+# if we perturb all images by 0.2, what is the accuracy of our model and secret_model?
+
+# could also write a function to carry out the minimum perturbation required to fool 
+# up to 0.3 for instance, and then see how this translates to secret_model performance
+# to check out the secret models accuracy vs perturbation. 
 
 
 

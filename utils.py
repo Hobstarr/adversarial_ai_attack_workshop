@@ -8,12 +8,14 @@ import matplotlib.pyplot as plt
 
 @tf.autograph.experimental.do_not_convert
 def preprocess(x, y):
+  '''helper function for create_dataset'''
   x = tf.cast(x, tf.float32) / 255.0
   y = tf.cast(y, tf.int64)
   return x, y
 
 @tf.autograph.experimental.do_not_convert
 def create_dataset(xs, ys, n_classes=10):
+  ''' build dataset from list of inputs, labels, and n_classes '''
   ys = tf.one_hot(ys, depth=n_classes)
   return tf.data.Dataset.from_tensor_slices((xs, ys)) \
     .map(preprocess) \
