@@ -187,6 +187,10 @@ input_image, input_label = preprocess_single_for_pert(x_val[i], y_val[i])
 perturbations = create_adversarial_pattern(input_image, input_label)
 plot_adv(input_image, eps, perturbations, model, secret_model)
 
+#############################################
+######### Part 3: What can we Learn? ########
+#############################################
+
 #################################
 #### FGSM Attack Heuristics #####
 i = 212
@@ -216,7 +220,7 @@ plt.ylabel('probability')
 plt.xlabel('eps')
 fig.show()
 
-eps = 0.03
+eps = 0.7
 plot_adv(input_image, eps, perturbations, model, secret_model)
 
 start = time.time()
