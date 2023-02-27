@@ -93,6 +93,15 @@ def call_model(model, example, verbose = False):
     return(np.argmax(one_hot))
 
 def preprocess_single_for_pert(input_image, input_label):
+    """
+    Takes a single input_image, input_label and returns a converted
+    version of each that can be input to plot_adv, or create a 
+    perturbation mask in create_adversarial_pattern
+    :param input_image: an array of the image
+    :param input_label: an integer valued label
+    :return: converted input_image, input_label
+    """
+
     input_label = tf.cast(input_label, tf.int32)
     input_label = tf.one_hot(input_label, 10)
     input_label = tf.reshape(input_label, (1,10))
@@ -104,6 +113,16 @@ def preprocess_single_for_pert(input_image, input_label):
     return input_image, input_label
 
 def plot_adv(input_image, eps, perturbations, model, secret_model):
+    """
+    Plots the original image with model predictions, the perturbation mask
+    and the final adversarial image with model predictions.
+    :param input_image: a tensor of the input image
+    :param eps: the value of epsiol (value to perturb image)
+    :param perturbations: the perturbation mask used to edit image
+    :param model: the surrogate model (or first predictive model)
+    :param secret_model: the secret model (or second predictive model)
+    """
+
     adv_x = input_image + (eps * perturbations)
 
     fig, ax = plt.subplots(1, 3, figsize = (8,3))
