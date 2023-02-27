@@ -5,6 +5,7 @@
 import random                         #
 import matplotlib.pyplot as plt       # useful python tools
 import numpy as np                    #
+import time                           #
 
 import tensorflow as tf                     # Tensorflow is gogles model building
 import tensorflow_datasets as tfds          # library, supports distributed computing
@@ -146,6 +147,8 @@ dy_dx = tape.gradient(y, x)
 dz_dx = tape.gradient(z, x)
 print(f'{dy_dx}, {dz_dx}')
 
+#################################
+#########  FGSM Attack  #########
 loss_object = tf.keras.losses.CategoricalCrossentropy()
 def create_adversarial_pattern(input_image, input_label):
     with tf.GradientTape(persistent = True) as tape:
@@ -158,8 +161,6 @@ def create_adversarial_pattern(input_image, input_label):
     signed_grad = tf.sign(gradient)
     return(signed_grad)
 
-#################################
-#########  FGSM Attack  #########
 # Pick a target, our aim is to misclassify this image
 input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
 plt.imshow(input_image[0]) # the subscript gives us the values from a tensor
@@ -168,7 +169,7 @@ plt.show()
 
 # Build perturbation mask and show it
 perturbations = create_adversarial_pattern(input_image, input_label)
-plt.imshow(perturbations[0] * 0.5 + 0.5)
+plt.imshow(perturbations[0])
 plt.show()
 
 # Show image
@@ -176,35 +177,68 @@ plt.show()
 # increase the loss with respect to ther input image
 eps = 0.05
 adv_x = input_image + (eps * perturbations)
+plt.imshow(adv_x[0])
+plt.xlabel(f'Our model predicts this image: {np.argmax(model(adv_x))}')
+plt.show()
 
-
-
-input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
+eps = 0.2
+i = 215
+input_image, input_label = preprocess_single_for_pert(x_val[i], y_val[i])
 perturbations = create_adversarial_pattern(input_image, input_label)
 plot_adv(input_image, eps, perturbations, model, secret_model)
 
+#################################
+#### FGSM Attack Heuristics #####
+i = 212
+input_image, input_label = preprocess_single_for_pert(x_val[i], y_val[i])
+perturbations = create_adversarial_pattern(input_image, input_label)
+plt.imshow(input_image[0])
+plt.show()
 
-
-for i in range(5):
-    plot_adv(input_image, i/50)
-
+start = time.time()
 model_prob_dict = {}
 for i in range(10):
-    model_class_prob_list = []
-    for eps in range(0, 1000):
-        adv_x = input_image + (eps/1000 * perturbations)
-        model_class_prob_list.append(model(adv_x).numpy()[0][i])
-    model_prob_dict[str(i)] = model_class_prob_list
+    model_prob_dict[str(i)] = []
+for eps in range(0, 1000):
+    adv_x = input_image + (eps/1000 * perturbations)
+    predicted_probs = model(adv_x).numpy()[0]
+    for i in range(10):
+        model_prob_dict[str(i)].append(predicted_probs[i])
+end = time.time()
+print(end - start)
+    
+fig = plt.figure(figsize = (8,8))
+for i in range(10):
+    dict_entry = str(i)
+    plt.plot([x / 1000 for x in list(range(1000))], model_prob_dict[dict_entry], label = dict_entry)
+fig.legend()
+plt.ylabel('probability')
+plt.xlabel('eps')
+fig.show()
+
+eps = 0.03
+plot_adv(input_image, eps, perturbations, model, secret_model)
+
+start = time.time()
+secret_model_prob_dict = {}
+for i in range(10):
+    secret_model_prob_dict[str(i)] = []
+for eps in range(0, 1000):
+    adv_x = input_image + (eps/1000 * perturbations)
+    predicted_probs = secret_model(adv_x).numpy()[0]
+    for i in range(10):
+        secret_model_prob_dict[str(i)].append(predicted_probs[i])
+end = time.time()
+print(end - start)
 
 fig = plt.figure(figsize = (8,8))
 for i in range(10):
     dict_entry = str(i)
-    plt.plot(list(range(1000)), model_prob_dict[dict_entry])
+    plt.plot([x / 1000 for x in list(range(1000))], secret_model_prob_dict[dict_entry], label = dict_entry)
+fig.legend()
+plt.ylabel('probability')
+plt.xlabel('eps')
 fig.show()
-        
-
-
-
 
 
 
