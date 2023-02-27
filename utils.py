@@ -4,6 +4,7 @@ from easydict import EasyDict
 from tensorflow.keras import Model
 import tensorflow_datasets as tfds
 from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, Reshape
+import matplotlib.pyplot as plt
 
 @tf.autograph.experimental.do_not_convert
 def preprocess(x, y):
