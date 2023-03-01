@@ -22,45 +22,6 @@ def create_dataset(xs, ys, n_classes=10):
     .shuffle(len(ys)) \
     .batch(128)
 
-@tf.autograph.experimental.do_not_convert
-def ld_mnist():
-    """Load training and test data."""
-
-    def convert_types(image, label):
-        image = tf.cast(image, tf.float32)
-        image /= 255
-        return image, label
-    
-
-    dataset, info = tfds.load(
-        "mnist", data_dir="gs://tfds-data/datasets", with_info=True, as_supervised=True
-    )
-    mnist_train, mnist_test = dataset["train"], dataset["test"]
-    mnist_train = mnist_train.map(convert_types).shuffle(60000).batch(128)
-    mnist_test = mnist_test.map(convert_types).shuffle(10000).batch(128)
-    return EasyDict(train=mnist_train, test=mnist_test)
-
-@tf.autograph.experimental.do_not_convert
-def ld_mnist_onehot():
-    """Load training and test data."""
-
-    def convert_types(image, label):
-        image = tf.cast(image, tf.float32)
-        image /= 255
-
-        label = tf.one_hot(label, depth = 10)
-        label = tf.cast(label, tf.int64)
-        return image, label
-    
-
-    dataset, info = tfds.load(
-        "mnist", data_dir="gs://tfds-data/datasets", with_info=True, as_supervised=True
-    )
-    mnist_train, mnist_test = dataset["train"], dataset["test"]
-    mnist_train = mnist_train.map(convert_types).shuffle(60000).batch(128)
-    mnist_test = mnist_test.map(convert_types).shuffle(10000).batch(128)
-    return EasyDict(train=mnist_train, test=mnist_test)
-
 # Determine how to build a model:
 class Neural_Net(Model):
     def __init__(self, layers = 3, layers_list = [128, 64, 32]):
@@ -87,12 +48,6 @@ class Neural_Net(Model):
             
             x = self.layers_dict[key](x)
         return(x)
-    
-def call_model(model, example, verbose = False):
-    one_hot = model(example.reshape(1,28,28))
-    if verbose == True:
-        print(np.argmax(one_hot))
-    return(np.argmax(one_hot))
 
 def preprocess_single_for_pert(input_image, input_label):
     """
@@ -146,3 +101,4 @@ def plot_adv(input_image, eps, perturbations, model, secret_model):
         ax.set_yticks([])
         #ax.axis('off')
     fig.show()
+
