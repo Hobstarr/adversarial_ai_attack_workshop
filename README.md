@@ -8,15 +8,16 @@
 6) At this point you're ready to run the code step-by-step, by selecting a part of the code in main.py and running it with shift+enter
 
 ### On Mac/Linux:
-1) Clone the repository onto your local machine, 
-
-recommended method: 
+1) Clone the repository onto your local machine. [recommended method:] 
 - Open VSCode and use Powershell Command (command+shift+p / ctrl+shift+p) 'Clone from Github', copying the following location when prompted: 'https://github.com/Hobstarr/dmu_workshop.git'.
 - Choose a repository location on your computer '/PythonProjects/dmu_workshop' for instance.
 - Follow the prompts accepting that you want to open this repository
 
-2) 
-
+2) Create virtual environment. [recommended method:] 
+- Open VSCode and use Powershell Command (command+shift+p / ctrl+shift+p) 'Python: Create Virtual Environment'
+- Choose Venv
+- Choose Python 3.11.2
+- Click on requirements.txt and click ok (if this doesn't work, retry but don't choose this, and either type in pip install -r requirements.txt, or pip install library (for each library at the start of main.py))
 
 # Adversarial Workshop - FAQ
 ## ML attack fundamentals
