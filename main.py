@@ -86,7 +86,7 @@ Test Accuracy : {secret_test_acc:.4f}')
 # 'transferable'.
 
 # Create a very simple model
-model = Neural_Net(layers = 2, layers_list = [64,32])
+model = Neural_Net(layers = 2, layers_list = [32,16])
 model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate = 1e-3),
               loss = tf.losses.CategoricalCrossentropy(),
               metrics = ['accuracy'])
@@ -175,13 +175,13 @@ plt.show()
 # Show image
 # Since this attack is 'not-targetted' we are trying to 
 # increase the loss with respect to ther input image
-eps = 0.05
+eps = 0.015
 adv_x = input_image + (eps * perturbations)
 plt.imshow(adv_x[0])
 plt.xlabel(f'Our model predicts this image: {np.argmax(model(adv_x))}')
 plt.show()
 
-eps = 0.2
+eps = 0.03
 i = 215
 input_image, input_label = preprocess_single_for_pert(x_val[i], y_val[i])
 perturbations = create_adversarial_pattern(input_image, input_label)
@@ -193,7 +193,7 @@ plot_adv(input_image, eps, perturbations, model, secret_model)
 
 #################################
 #### FGSM Attack Heuristics #####
-i = 212
+i = 215
 input_image, input_label = preprocess_single_for_pert(x_val[i], y_val[i])
 perturbations = create_adversarial_pattern(input_image, input_label)
 plt.imshow(input_image[0])
