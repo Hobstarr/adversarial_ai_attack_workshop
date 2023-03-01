@@ -1,7 +1,3 @@
-# TODO: edit load_data data_dir in utils.py
-# TODO: Randomise dataset - simple solution: new create_dataset
-# TODO: Add prediction of each model (to show what models predict as)
-
 import random                         #
 import matplotlib.pyplot as plt       # useful python tools
 import numpy as np                    #
@@ -11,13 +7,8 @@ import tensorflow as tf  # Tensorflow is googles model building library, support
 from tensorflow.keras import Model, Sequential
 from tensorflow.keras.layers import Dense, Flatten, Reshape
 
-# cleverhans is a model attacking and defending tool, full info on github
-from cleverhans.tf2.attacks.projected_gradient_descent import projected_gradient_descent
-from cleverhans.tf2.attacks.fast_gradient_method import fast_gradient_method
-
 from easydict import EasyDict               # from utils.py file
-from utils import Neural_Net, create_dataset, preprocess_single_for_pert, plot_adv, \
-                    plot_prob_dist
+from utils import Neural_Net, create_dataset, preprocess_single_for_pert, plot_adv
 
 #############################################
 ######### Part 1: ML Model FUNdamentals #####
@@ -30,7 +21,7 @@ from utils import Neural_Net, create_dataset, preprocess_single_for_pert, plot_a
 
 # use inbuilt mnist or fashion_mnist from keras (comment mnist, uncomment fashion_mnist)
 (x_train, y_train), (x_val, y_val) = tf.keras.datasets.mnist.load_data()
-# (x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
+(x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
 train_dataset = create_dataset(x_train, y_train)
 val_dataset = create_dataset(x_val, y_val)
 
@@ -44,14 +35,14 @@ for i, ax in enumerate(ax.flatten()):
 fig.show()
 
 # If using fashion_mnist use this class list:
-class_list = ['T-shirt', 'Trouser', 'Pullover', 'Dress', 'Coat',
-              'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
+# class_list = ['T-shirt', 'Trouser', 'Pullover', 'Dress', 'Coat',
+#              'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
 
 ######### Create Target Model #########
 # Create secret model using random subset of training data,
 # random number of layers [1-10], random nodes in layers [32-256]
-# TODO: Randomise dataset - simple solution: new create_dataset
-random_mask = np.random.choice(60000, replace=False, size=10000)
+
+random_mask = np.random.choice(60000, replace=False, size=15000)
 secret_train_dataset = create_dataset(x_train[random_mask], y_train[random_mask])
 
 secret_layers = random.randint(1,10)
@@ -80,10 +71,10 @@ Test Accuracy : {secret_test_acc:.4f}')
 ######### Create Surrogate Model #########
 # To attack a model, we often have to create our own
 # model that accomplishes the same task. Due to some
-# intriguing properties of neural networks, and other
+# intriguing properties of neural networks, nd other
 # types of models it can be found that attacks are
 # 'transferable'.
-train_random_mask = np.random.choice(60000, replace=False, size=10000)
+train_random_mask = np.random.choice(60000, replace=False, size=15000)
 sub_train_dataset = create_dataset(x_train[train_random_mask], y_train[train_random_mask])
 
 # Create a very simple model
@@ -121,7 +112,7 @@ for i in range(2000):
 # TODO: Add prediction of each model (to show what models predict as)
 # What does this dataset look like? 
 # Plot the first n * n entries:
-fig, ax = plt.subplots(5, 5) # Build 5 x 5 grid
+fig, ax = plt.subplots(10, 10) # Build 5 x 5 grid
 fig.suptitle('MNIST Dataset: Ambiguous entries', fontsize = '12')
 for i, ax in enumerate(ax.flatten()):
     dict_entry = list(train_disagree_dict.keys())[i]
@@ -141,11 +132,13 @@ fig.show()
 x = tf.constant(1.0) # Need persistent to call it twice
 with tf.GradientTape(persistent = True) as tape:
   tape.watch(x)
+  f = x * x
   y = 5 * x * x * x
   z = (y * x) /4
+df_dx = tape.gradient(f, x)
 dy_dx = tape.gradient(y, x)
 dz_dx = tape.gradient(z, x)
-print(f'{dy_dx}, {dz_dx}')
+print(f'{df_dx}, {dy_dx}, {dz_dx}')
 
 #################################
 #########  FGSM Attack  #########
@@ -164,7 +157,7 @@ def create_adversarial_pattern(input_image, input_label):
 # Pick a target, our aim is to misclassify this image
 target_image = 10
 input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
-plt.imshow(input_image[0]) # the subscript gives us the values from a tensor
+plt.imshow(input_image[0], cmap = 'gray_r') # the subscript gives us the values from a tensor
 plt.xlabel(f'Our model predicts this image: {np.argmax(model(input_image))}')
 plt.show()
 
@@ -224,7 +217,7 @@ target_image = 215
 plot_prob_dist(target_image, model)
 plot_prob_dist(target_image, secret_model)
 
-eps = 0.5                     
+eps = 0.0                   
 target_image = 215          # index of image in validation set
 input_image, input_label = preprocess_single_for_pert(x_val[target_image], y_val[target_image])
 perturbations = create_adversarial_pattern(input_image, input_label)
