@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 from easydict import EasyDict
 from tensorflow.keras import Model
-import tensorflow_datasets as tfds
 from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, Reshape
 import matplotlib.pyplot as plt
 
