@@ -9,10 +9,11 @@
 
 ### On Mac/Linux:
 1) Clone the repository onto your local machine, 
-    recommended method: 
-    Open VSCode and use Powershell Command (command+shift+p / ctrl+shift+p) 'Clone from Github', copying the following location when prompted: 'https://github.com/Hobstarr/dmu_workshop.git'.
-    Choose a repository location on your computer '/PythonProjects/dmu_workshop' for instance.
-    Follow the prompts accepting that you want to open this repository
+
+recommended method: 
+- Open VSCode and use Powershell Command (command+shift+p / ctrl+shift+p) 'Clone from Github', copying the following location when prompted: 'https://github.com/Hobstarr/dmu_workshop.git'.
+- Choose a repository location on your computer '/PythonProjects/dmu_workshop' for instance.
+- Follow the prompts accepting that you want to open this repository
 
 2) 
 
