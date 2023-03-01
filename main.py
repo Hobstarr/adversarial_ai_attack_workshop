@@ -230,8 +230,3 @@ input_image, input_label = preprocess_single_for_pert(x_val[target_image], y_val
 perturbations = create_adversarial_pattern(input_image, input_label)
 plot_adv(input_image, eps, perturbations, model, secret_model)
 
-# if we perturb all images by 0.2, what is the accuracy of our model and secret_model?
-
-# could also write a function to carry out the minimum perturbation required to fool 
-# up to 0.3 for instance, and then see how this translates to secret_model performance
-# to check out the secret models accuracy vs perturbation. 
