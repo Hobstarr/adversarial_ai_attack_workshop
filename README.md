@@ -17,7 +17,7 @@
 - Open VSCode and use Powershell Command (command+shift+p / ctrl+shift+p) 'Python: Create Virtual Environment'
 - Choose Venv
 - Choose Python 3.11.2
-- Click on requirements.txt and click ok (if this doesn't work, retry but don't choose this, and either type in pip install -r requirements.txt, or pip install library (for each library at the start of main.py))
+- Click on requirements.txt box and click ok (if this doesn't work, retry but don't click the requirements.txt box, refresh terminal (terminal, new terminal), try pip install -r requirements.txt in the venv, or pip install library (for each library at the start of main.py))
 
 # Adversarial Workshop - FAQ
 ## ML attack fundamentals
