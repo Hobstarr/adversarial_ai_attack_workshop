@@ -5,7 +5,7 @@ import time                           #
 
 import tensorflow as tf  # Tensorflow is googles model building library, supports distributed computing
 from tensorflow.keras import Model, Sequential
-from tensorflow.keras.layers import Dense, Flatten, Reshape
+from tensorflow.keras.layers import Dense, Reshape
 
 from easydict import EasyDict               # from utils.py file
 from utils import Neural_Net, create_dataset, preprocess_single_for_pert, plot_adv
@@ -21,9 +21,15 @@ from utils import Neural_Net, create_dataset, preprocess_single_for_pert, plot_a
 
 # use inbuilt mnist or fashion_mnist from keras (comment mnist, uncomment fashion_mnist)
 (x_train, y_train), (x_val, y_val) = tf.keras.datasets.mnist.load_data()
-# (x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
+(x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
 train_dataset = create_dataset(x_train, y_train)
 val_dataset = create_dataset(x_val, y_val)
+
+# If using fashion_mnist use this class list:
+class_list = ['0', '1', '2', '3', '4',
+              '5', '6', '7', '8', '9']
+#class_list = ['T-shirt', 'Trouser', 'Pullover', 'Dress', 'Coat',
+#              'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
 
 # What does this dataset look like? 
 # Plot the first x entries, change the values within subplots to edit:
@@ -33,10 +39,6 @@ for i, ax in enumerate(ax.flatten()):
     ax.imshow(x_train[i], cmap ='gray_r')
     ax.axis('off')
 fig.show()
-
-# If using fashion_mnist use this class list:
-# class_list = ['T-shirt', 'Trouser', 'Pullover', 'Dress', 'Coat',
-#              'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot']
 
 ######### Create Target Model #########
 # Create secret model using random subset of training data,
@@ -107,18 +109,22 @@ for i in range(2000):
         print(str(i))
         dict_key = str(i)
         train_disagree_dict[dict_key] = x_train[i]
-        # print(f'The {i}th entry is predicted differently')
 
-# TODO: Add prediction of each model (to show what models predict as)
 # What does this dataset look like? 
 # Plot the first n * n entries:
-fig, ax = plt.subplots(10, 10) # Build 5 x 5 grid
+fig, ax = plt.subplots(5, 5) # Build 5 x 5 grid
 fig.suptitle('MNIST Dataset: Ambiguous entries', fontsize = '12')
 for i, ax in enumerate(ax.flatten()):
     dict_entry = list(train_disagree_dict.keys())[i]
     ax.imshow(train_disagree_dict[dict_entry], cmap ='gray_r')
     ax.axis('off')
 fig.show()
+
+first_entry = x_train[int(list(train_disagree_dict.keys())[2])]
+plt.imshow(first_entry)
+plt.xlabel(f'Model Prediction: {class_list[np.argmax(model(first_entry.reshape(1,28,28)))]}  \
+    Actual Label: {class_list[int(list(train_disagree_dict.keys())[2])]}')
+plt.show()
 
 #############################################
 ######### Part 2: Crafting ML Model Attacks #
@@ -129,9 +135,10 @@ fig.show()
 #################################
 
 # Quick intro to gradient tape
-x = tf.constant(1.0) # Need persistent to call it twice
+x = tf.constant(2.0) # Need persistent to call it twice
 with tf.GradientTape(persistent = True) as tape:
   tape.watch(x)
+  # Feel free to edit from here to try different functions
   f = x * x
   y = 5 * x * x * x
   z = (y * x) /4
@@ -206,7 +213,7 @@ def plot_prob_dist(image_index, model):
     fig = plt.figure(figsize = (8,8))
     for i in range(10):
         dict_entry = str(i)
-        plt.plot([x / 1000 for x in list(range(1000))], model_prob_dict[dict_entry], label = dict_entry)
+        plt.plot([x / 1000 for x in list(range(1000))], model_prob_dict[dict_entry], label = class_list[i])
     fig.legend()
     plt.ylabel('probability')
     plt.xlabel('eps')
