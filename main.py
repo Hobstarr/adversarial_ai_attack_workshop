@@ -21,7 +21,7 @@ from utils import Neural_Net, create_dataset, preprocess_single_for_pert, plot_a
 
 # use inbuilt mnist or fashion_mnist from keras (comment mnist, uncomment fashion_mnist)
 (x_train, y_train), (x_val, y_val) = tf.keras.datasets.mnist.load_data()
-(x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
+#(x_train, y_train), (x_val, y_val) = tf.keras.datasets.fashion_mnist.load_data()
 train_dataset = create_dataset(x_train, y_train)
 val_dataset = create_dataset(x_val, y_val)
 
