@@ -16,8 +16,8 @@ from utils import Neural_Net, create_dataset, preprocess_single_for_pert, plot_a
 
 ######### MNIST Fashion Dataset #############
 ### Building a dataset to work from
-### If you'd rather use the fingerprint dataset
-### change fashion_mnist to mnist
+### If you'd rather use the fashion dataset
+### change mnist to fashion_mnist
 
 # use inbuilt mnist or fashion_mnist from keras (comment mnist, uncomment fashion_mnist)
 (x_train, y_train), (x_val, y_val) = tf.keras.datasets.mnist.load_data()
