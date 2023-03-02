@@ -121,9 +121,11 @@ for i, ax in enumerate(ax.flatten()):
 fig.show()
 
 first_entry = x_train[int(list(train_disagree_dict.keys())[2])]
+label = y_train[int(list(train_disagree_dict.keys())[2])]
 plt.imshow(first_entry)
-plt.xlabel(f'Model Prediction: {class_list[np.argmax(model(first_entry.reshape(1,28,28)))]}  \
-    Actual Label: {class_list[int(list(train_disagree_dict.keys())[2])]}')
+plt.xlabel(f'Actual Label: {class_list[label]} \
+           Model Prediction: {class_list[np.argmax(model(first_entry.reshape(1,28,28)))]} \
+           Secret Model Prediction: {class_list[np.argmax(secret_model(first_entry.reshape(1,28,28)))]}')
 plt.show()
 
 #############################################
@@ -135,7 +137,7 @@ plt.show()
 #################################
 
 # Quick intro to gradient tape
-x = tf.constant(2.0) # Need persistent to call it twice
+x = tf.constant(1.0) # Need persistent to call it twice
 with tf.GradientTape(persistent = True) as tape:
   tape.watch(x)
   # Feel free to edit from here to try different functions
