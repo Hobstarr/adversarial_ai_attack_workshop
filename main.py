@@ -178,7 +178,7 @@ plt.show()
 # Show image
 # Since this attack is 'not-targetted' we are trying to 
 # increase the loss with respect to ther input image
-eps = 0.07
+eps = 0.10
 adv_x = input_image + (eps * perturbations)
 plt.imshow(adv_x[0])
 plt.xlabel(f'Our model predicts this image: {np.argmax(model(adv_x))}')
@@ -226,7 +226,7 @@ target_image = 215
 plot_prob_dist(target_image, model)
 plot_prob_dist(target_image, secret_model)
 
-eps = 0.0                   
+eps = 0.15                 
 target_image = 215          # index of image in validation set
 input_image, input_label = preprocess_single_for_pert(x_val[target_image], y_val[target_image])
 perturbations = create_adversarial_pattern(input_image, input_label)
