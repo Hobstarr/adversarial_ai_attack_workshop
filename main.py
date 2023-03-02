@@ -166,7 +166,7 @@ def create_adversarial_pattern(input_image, input_label):
 # Pick a target, our aim is to misclassify this image
 target_image = 10
 input_image, input_label = preprocess_single_for_pert(x_val[0], y_val[0])
-plt.imshow(input_image[0], cmap = 'gray_r') # the subscript gives us the values from a tensor
+plt.imshow(input_image[0]) # the subscript gives us the values from a tensor
 plt.xlabel(f'Our model predicts this image: {np.argmax(model(input_image))}')
 plt.show()
 
