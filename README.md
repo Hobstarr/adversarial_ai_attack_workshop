@@ -1,3 +1,13 @@
+
+![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/1c578ffa-8d1a-4535-a375-6f60b0894af9)
+
+![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/05ae44cc-1437-4c56-abcf-2376119a3ea2)
+
+![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/53de4882-bfe1-40b6-8630-a598d30a494b)
+
+![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/dadaf9a6-e5d0-42e2-b60b-7603e0d068c5)
+
+
 # How to get started
 ### On Windows:
 1) Clone the repository onto your local machine, either by using GitHub Desktop app or by typing "git clone https://github.com/Hobstarr/dmu_workshop.git" in the command line
