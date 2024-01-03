@@ -26,8 +26,8 @@ function approximation method of (joint probability X, y).
 For some data/input (X), we are trying to learn to best predict it's label or output (y).
 We are aiming to optimise this over a whole set of inputs and outputs with respect to some statistc.
 
-### What is Tensorflow? - 'an optimised machine 
-learning platform for model creation and dataset management
+### What is Tensorflow? - 
+'an optimised machine learning platform for model creation and dataset management
 with high computational speed and efficiency' 
 -alternatives include: PyTorch / Jax
 
