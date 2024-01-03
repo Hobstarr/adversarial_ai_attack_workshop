@@ -1,11 +1,7 @@
-
-![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/1c578ffa-8d1a-4535-a375-6f60b0894af9)
-
-![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/05ae44cc-1437-4c56-abcf-2376119a3ea2)
-
-![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/53de4882-bfe1-40b6-8630-a598d30a494b)
-
-![image](https://github.com/Hobstarr/dmu_workshop/assets/56070935/dadaf9a6-e5d0-42e2-b60b-7603e0d068c5)
+<img src="https://github.com/Hobstarr/dmu_workshop/assets/56070935/1c578ffa-8d1a-4535-a375-6f60b0894af9" width="480" height="240">
+<img src="https://github.com/Hobstarr/dmu_workshop/assets/56070935/05ae44cc-1437-4c56-abcf-2376119a3ea2" width="480" height="240">
+<img src="https://github.com/Hobstarr/dmu_workshop/assets/56070935/53de4882-bfe1-40b6-8630-a598d30a494b" width="480" height="240">
+<img src="https://github.com/Hobstarr/dmu_workshop/assets/56070935/dadaf9a6-e5d0-42e2-b60b-7603e0d068c5" width="480" height="240">
 
 
 # How to get started
